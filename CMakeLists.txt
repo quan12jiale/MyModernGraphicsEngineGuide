@@ -2,11 +2,21 @@ cmake_minimum_required(VERSION 3.12)
 
 project(ModernGraphicsEngineGuide CXX)
 
+set(QT_PREFIX_PATH $ENV{QT6DIR64}) # QTDIR64
+message("QT install path: $ENV{QT6DIR64}") # QTDIR64
+list(APPEND CMAKE_PREFIX_PATH ${QT_PREFIX_PATH})
+
+# 禁用cmakes时Qt私有模块警告，见QtPublicDependencyHelpers.cmake
+set(QT_NO_PRIVATE_MODULE_WARNING ON)
+
+set(__QT_DEPLOY_TOOL "D:/Program/qt6/bin/windeployqt.exe")
+# TODO 拷贝QEngineCore.dll到二进制目录
+
 set(INSTALLATION_PACKAGE_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/InstallationPackage)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY AUTOGEN_SOURCE_GROUP "Generated Files")
 set(CMAKE_MAP_IMPORTED_CONFIG_DEBUGEDITOR Debug Release)
-find_package(Qt6 COMPONENTS Core Widgets Gui Multimedia ShaderTools REQUIRED)
+find_package(Qt6 COMPONENTS Core Widgets Gui Multimedia ShaderTools GuiPrivate WidgetsPrivate ShaderToolsPrivate MultimediaPrivate REQUIRED)
 
 function(add_shader TARGET_NAME SHADER_PATH)
     set(OUTPUT_SHADER_PATH ${SHADER_PATH}.qsb)  #输出文件路径
@@ -27,24 +37,15 @@ function(add_example EXAMPLE_PATH)
     )
     target_link_libraries(${EXAMPLE_NAME} PRIVATE QEngineCore) # QEngineLaunch
     #add_dependencies(${EXAMPLE_NAME} QEngineCopyDLL)
-    set_target_properties( #设置调试>>命令、工作目录 参考os-windows.cmake
-      ${EXAMPLE_NAME}
-      PROPERTIES
-        WIN32_EXECUTABLE TRUE
-        VS_DEBUGGER_COMMAND "${CMAKE_BINARY_DIR}/rundir/$<CONFIG>/bin/64bit/$<TARGET_FILE_NAME:${EXAMPLE_NAME}>"
-        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/rundir/$<CONFIG>/bin/64bit"
-    )
     
-    add_custom_command( #设置生成事件>>生成后事件 参考cmake\linux\helpers.cmake
+    add_custom_command( #设置生成事件>>生成后事件 参考cmake\linux\helpers.cmake。拷贝Resources文件夹;调用windeployqt部署qt的dll
       TARGET ${EXAMPLE_NAME}
       POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E make_directory "${OBS_OUTPUT_DIR}/$<CONFIG>/${OBS_EXECUTABLE_DESTINATION}"
-      COMMAND
-        "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${EXAMPLE_NAME}>"
-        "${OBS_OUTPUT_DIR}/$<CONFIG>/${OBS_EXECUTABLE_DESTINATION}"
       COMMAND
         "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Resources"
-        "${OBS_OUTPUT_DIR}/$<CONFIG>/${OBS_EXECUTABLE_DESTINATION}/Resources"
+        "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/Resources"
+      COMMAND
+        "${__QT_DEPLOY_TOOL}" "${EXAMPLE_NAME}.exe" WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>"
       COMMENT "Copy ${EXAMPLE_NAME} to binary directory"
       VERBATIM
     )
@@ -89,7 +90,7 @@ add_example_dir(${CMAKE_CURRENT_SOURCE_DIR}/Source/1-GraphicsAPI 1-GraphicsAPI)
 
 
 
-execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory  ${CMAKE_CURRENT_SOURCE_DIR}/Resources ${CMAKE_CURRENT_BINARY_DIR}/Resources)
+#execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory  ${CMAKE_CURRENT_SOURCE_DIR}/Resources ${CMAKE_CURRENT_BINARY_DIR}/Resources)
 
 get_property(QENGINE_TARGET_LIST GLOBAL PROPERTY QENGINE_TARGET_LIST)
 foreach(QENGINE_TARGET ${QENGINE_TARGET_LIST})

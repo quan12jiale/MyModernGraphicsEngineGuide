@@ -1,0 +1,25 @@
+参考文档：https://wiki.qt.io/Building_Qt_6_from_Git
+1、打开x64 Native Tools Command Prompt for VS 2022命令提示符
+2、将ninja.exe路径添加到PATH环境变量中。Visual Studio 2019/2022预装了CMake和ninja。
+我本地Ninja的路径是：C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja\ninja.exe
+Cmake的路径是：C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe。
+不过Visual Studio预装的CMake没有cmake-gui.exe。
+
+On Windows:
+Open the correct command prompt (e.g. 'x64 Native Tools Command Prompt for VS 2022'), which properly sets up the needed environment variables. Also, make sure that Ninja can be found (by adding the path to ninja,exe to your PATH env var)
+
+> mkdir qt6-build // qt6-build是在qt6目录外面
+> cd qt6-build
+> ..\qt6\configure.bat -prefix C:\path\to\install // 同时配置debug-and-release：..\qt5\configure.bat -prefix D:\Program\qt6 -debug-and-release，或者..\qt5\configure.bat -prefix D:\Program\qt6 -debug-and-release -opensource
+> cmake --build . // 并行编译：cmake --build . --parallel
+> cmake --install . // 同时配置debug-and-release，使用ninja install
+  Note: In case of debug and release build please use "ninja install" instead of "cmake --install ." due to cmake issue
+
+Run configure -help to get an overview of available options.
+
+You may also pass CMake options directly to configure:
+
+ > ../qt6/configure -- -DQT_BUILD_TESTS=ON
+All options specified after a double-dash (--), will be passed verbatim to CMake.
+
+See cmake/configure-cmake-mapping.md in the sources for an overview of available options and how they map to CMake options.
