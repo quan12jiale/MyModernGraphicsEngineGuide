@@ -10,7 +10,40 @@ list(APPEND CMAKE_PREFIX_PATH ${QT_PREFIX_PATH})
 set(QT_NO_PRIVATE_MODULE_WARNING ON)
 
 set(__QT_DEPLOY_TOOL "D:/Program/qt6/bin/windeployqt.exe")
-# TODO 拷贝QEngineCore.dll到二进制目录
+
+set(ISWINDOWS OFF)
+set(ISLINUX OFF)
+
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+    SET(ISWINDOWS ON)
+elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
+    SET(ISLINUX ON)
+else()
+	MESSAGE(FATAL_ERROR "Has not support your system:${CMAKE_SYSTEM_NAME}...")
+endif()
+
+if(${ISWINDOWS})
+	if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+		set(PROJECT_PLATFORM "Win32")
+		set(PROJECT_PLATFORM_X "X86")
+		add_definitions(-DWIN32)
+	elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+		set(PROJECT_PLATFORM "x64")
+		set(PROJECT_PLATFORM_X "X64")
+		add_definitions(-DWIN64)
+	endif()
+else()
+    set(PROJECT_PLATFORM "x64")
+    set(PROJECT_PLATFORM_X "X64")
+endif()
+
+##源代码位置
+set(PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+##将动态库\静态库输出路径定位到特定路径,供调试时使用(否则依赖的库分布在各个文件夹)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/build/bin/${PROJECT_PLATFORM}")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/build/lib/${PROJECT_PLATFORM}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/build/lib/${PROJECT_PLATFORM}")
 
 set(INSTALLATION_PACKAGE_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/InstallationPackage)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -32,7 +65,7 @@ endfunction()
 function(add_example EXAMPLE_PATH)
     get_filename_component(EXAMPLE_NAME ${EXAMPLE_PATH} NAME)
     file(GLOB_RECURSE PROJECT_SOURCES FILES  ${EXAMPLE_PATH}/*.cpp ${EXAMPLE_PATH}/*.h ${EXAMPLE_PATH}/*.qrc)
-    add_executable(${EXAMPLE_NAME} 
+    add_executable(${EXAMPLE_NAME} WIN32
         ${PROJECT_SOURCES}
     )
     target_link_libraries(${EXAMPLE_NAME} PRIVATE QEngineCore) # QEngineLaunch
@@ -43,9 +76,10 @@ function(add_example EXAMPLE_PATH)
       POST_BUILD
       COMMAND
         "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Resources"
-        "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/Resources"
+        "${PROJECT_SOURCE_DIR}/build/bin/${PROJECT_PLATFORM}/$<CONFIG>/Resources"
       COMMAND
-        "${__QT_DEPLOY_TOOL}" "${EXAMPLE_NAME}.exe" WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>"
+        "${__QT_DEPLOY_TOOL}" "${EXAMPLE_NAME}.exe" WORKING_DIRECTORY
+        "${PROJECT_SOURCE_DIR}/build/bin/${PROJECT_PLATFORM}/$<CONFIG>"
       COMMENT "Copy ${EXAMPLE_NAME} to binary directory"
       VERBATIM
     )
