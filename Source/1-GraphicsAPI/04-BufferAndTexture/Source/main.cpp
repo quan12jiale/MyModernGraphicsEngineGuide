@@ -1,6 +1,6 @@
 #include <QApplication>
 #include "Render/RHI/QRhiWindow.h"
-#include "QDateTime"
+#include <QDir>
 
 static float VertexData[] = {
 	//position(xy)		texture coord(uv)
@@ -179,7 +179,7 @@ protected:
 
 int main(int argc, char **argv){
     QApplication app(argc, argv);
-
+	QDir::setCurrent(app.applicationDirPath());
     QRhiHelper::InitParams initParams;
     initParams.backend = QRhi::D3D11;
     MyWindow* window = new MyWindow(initParams);
