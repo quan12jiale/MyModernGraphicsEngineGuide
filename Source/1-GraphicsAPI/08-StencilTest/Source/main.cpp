@@ -78,14 +78,14 @@ protected:
 			mMaskPipeline->setShaderStages({
 				QRhiShaderStage(QRhiShaderStage::Vertex, vs),
 				QRhiShaderStage(QRhiShaderStage::Fragment, fs)
-			});
-			mMaskPipeline->setFlags(QRhiGraphicsPipeline::Flag::UsesStencilRef);			//¿ªÆôÁ÷Ë®ÏßµÄÄ£°æ²âÊÔ¹¦ÄÜ
-			mMaskPipeline->setStencilTest(true);											//¿ªÆôÄ£°æ²âÊÔ
+				});
+			mMaskPipeline->setFlags(QRhiGraphicsPipeline::Flag::UsesStencilRef);			//开启流水线的模版测试功能
+			mMaskPipeline->setStencilTest(true);											//开启模版测试
 			QRhiGraphicsPipeline::StencilOpState maskStencilState;
-			maskStencilState.compareOp = QRhiGraphicsPipeline::CompareOp::Never;			//¸Ă¹ÜÏßÓĂÓÚ»æÖÆÄ£°æ£¨ƠÚƠÖ£©£¬Î̉ĂÇ²»Ï£ÍûËüÔÚRTÉÏ»æÖÆÈÎºÎÆ¬¶ÎÑƠÉ«£¬̣̉´ËÈĂËüµÄÆ¬¶ÎÓÀÔ¶²»»áÍ¨¹ưÄ£°æ²âÊÔ
-			maskStencilState.failOp = QRhiGraphicsPipeline::StencilOp::Replace;				//ÉèÖĂµ±¸ĂÆ¬¶ÎĂ»ÓĐÍ¨¹ưÄ£°æ²âÊÔÊ±£¬Ê¹ÓĂStencilRef̀î³äÄ£°æ»º³åÇø
-			mMaskPipeline->setStencilFront(maskStencilState);								//Ö¸¶¨ƠưĂæµÄÄ£°æ²âÊÔ
-			mMaskPipeline->setStencilBack(maskStencilState);								//Ö¸¶¨±³ĂæµÄÄ£°æ²âÊÔ
+			maskStencilState.compareOp = QRhiGraphicsPipeline::CompareOp::Never;			//该管线用于绘制模版（遮罩），我们不希望它在RT上绘制任何片段颜色，因此让它的片段永远不会通过模版测试
+			maskStencilState.failOp = QRhiGraphicsPipeline::StencilOp::Replace;				//设置当该片段没有通过模版测试时，使用StencilRef填充模版缓冲区
+			mMaskPipeline->setStencilFront(maskStencilState);								//指定正面的模版测试
+			mMaskPipeline->setStencilBack(maskStencilState);								//指定背面的模版测试
 			mMaskPipeline->create();
 
 			mPipeline.reset(mRhi->newGraphicsPipeline());
@@ -96,13 +96,13 @@ protected:
 			mPipeline->setShaderStages({
 				QRhiShaderStage(QRhiShaderStage::Vertex, vs),
 				QRhiShaderStage(QRhiShaderStage::Fragment, fs)
-			});
-			mPipeline->setFlags(QRhiGraphicsPipeline::Flag::UsesStencilRef);				//¿ªÆôÁ÷Ë®ÏßµÄÄ£°æ²âÊÔ¹¦ÄÜ
-			mPipeline->setStencilTest(true);												//¿ªÆôÄ£°æ²âÊÔ
+				});
+			mPipeline->setFlags(QRhiGraphicsPipeline::Flag::UsesStencilRef);				//开启流水线的模版测试功能
+			mPipeline->setStencilTest(true);												//开启模版测试
 			QRhiGraphicsPipeline::StencilOpState stencilState;
-			stencilState.compareOp = QRhiGraphicsPipeline::CompareOp::Equal;				//Î̉ĂÇÏ£ÍûÔÚµ±Ç°¹ÜÏßµÄStencilRefµÈÓÚÄ£°æ»º³åÇøÉÏµÄÆ¬¶ÎÖµÊ±²ÅÍ¨¹ưÄ£°æ²âÊÔ
-			stencilState.passOp = QRhiGraphicsPipeline::StencilOp::Keep;					//ÔÚÍ¨¹ư²âÊÔºó²»»á¶ÔÄ£°æ»º³åÇø½øĐĐ¸³Öµ
-			stencilState.failOp = QRhiGraphicsPipeline::StencilOp::Keep;					//ÔÚĂ»ÓĐÍ¨¹ư²âÊÔÊ±̉²²»»á¶ÔÄ£°æ»º³åÇø½øĐĐ¸³Öµ
+			stencilState.compareOp = QRhiGraphicsPipeline::CompareOp::Equal;				//我们希望在当前管线的StencilRef等于模版缓冲区上的片段值时才通过模版测试
+			stencilState.passOp = QRhiGraphicsPipeline::StencilOp::Keep;					//在通过测试后不会对模版缓冲区进行赋值
+			stencilState.failOp = QRhiGraphicsPipeline::StencilOp::Keep;					//在没有通过测试时也不会对模版缓冲区进行赋值
 			mPipeline->setStencilFront(stencilState);
 			mPipeline->setStencilBack(stencilState);
 			mPipeline->create();
@@ -114,9 +114,9 @@ protected:
 
 		if (mSigSubmit.ensure()) {
 			QRhiResourceUpdateBatch* batch = mRhi->nextResourceUpdateBatch();
-			batch->uploadStaticBuffer(mMaskVertexBuffer.get(), Vertices);					//ÉÏ´«Ä£°æ£¨ƠÚƠÖ£©µÄ¶¥µăÊư¾Ư£¬ËüÊÇ̉»¸öÈư½ÇĐÎ
+			batch->uploadStaticBuffer(mMaskVertexBuffer.get(), Vertices);					//上传模版（遮罩）的顶点数据，它是一个三角形
 
-			for (auto& vertex : Vertices) 													//ÉÏ´«Êµ¼ÊÍ¼ĐÎµÄ¶¥µăÊư¾Ư£¬ËüÊÇ̉»¸öÉÏÏÂ·­×ªµÄÈư½ÇĐÎ
+			for (auto& vertex : Vertices) 													//上传实际图形的顶点数据，它是一个上下翻转的三角形
 				vertex.setY(-vertex.y());
 			batch->uploadStaticBuffer(mVertexBuffer.get(), Vertices);
 
@@ -124,11 +124,11 @@ protected:
 		}
 
 		const QColor clearColor = QColor::fromRgbF(0.0f, 0.0f, 0.0f, 1.0f);
-		const QRhiDepthStencilClearValue dsClearValue = { 1.0f,0 };							//Ê¹ÓĂ 0 ÇåÀíÄ£°æ»º³åÇø
+		const QRhiDepthStencilClearValue dsClearValue = { 1.0f,0 };							//使用 0 清理模版缓冲区
 		cmdBuffer->beginPass(renderTarget, clearColor, dsClearValue, nullptr);
 
 		cmdBuffer->setGraphicsPipeline(mMaskPipeline.get());
-		cmdBuffer->setStencilRef(1);														//ÉèÖĂStencilRefÎª1£¬¸Ă¹ÜÏß»áÔÚÄ£°æ»º³åÇøÉÏ̀î³ä̉»¿éÖµÎª1µÄÈư½ÇĐÎÇøỌ́
+		cmdBuffer->setStencilRef(1);														//设置StencilRef为1，该管线会在模版缓冲区上填充一块值为1的三角形区域
 		cmdBuffer->setViewport(QRhiViewport(0, 0, mSwapChain->currentPixelSize().width(), mSwapChain->currentPixelSize().height()));
 		cmdBuffer->setShaderResources();
 		const QRhiCommandBuffer::VertexInput maskVertexInput(mMaskVertexBuffer.get(), 0);
@@ -136,7 +136,7 @@ protected:
 		cmdBuffer->draw(3);
 
 		cmdBuffer->setGraphicsPipeline(mPipeline.get());
-		cmdBuffer->setStencilRef(1);														//ÉèÖĂStencilRefÎª1£¬¸Ă¹ÜÏß»áÓĂ1¸ú¶ÔÓ¦Î»ÖĂµÄÆ¬¶ÎÄ£°æÖµ½øĐĐ±È½Ï£¬ÏàµÈÊ±²Å»áÍ¨¹ưÄ£°æ²âÊÔ£¬̉²¾ÍÊÇ»á½«Æ¬¶Î»æÖÆµ±ÑƠÉ«¸½¼₫ÉÏ
+		cmdBuffer->setStencilRef(1);														//设置StencilRef为1，该管线会用1跟对应位置的片段模版值进行比较，相等时才会通过模版测试，也就是会将片段绘制当颜色附件上
 		cmdBuffer->setViewport(QRhiViewport(0, 0, mSwapChain->currentPixelSize().width(), mSwapChain->currentPixelSize().height()));
 		cmdBuffer->setShaderResources();
 		const QRhiCommandBuffer::VertexInput vertexInput(mVertexBuffer.get(), 0);
