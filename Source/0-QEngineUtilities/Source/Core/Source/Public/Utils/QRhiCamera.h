@@ -21,9 +21,9 @@ public:
 	void setupWindow(QWindow* window);
 	void setupRhi(QRhi* rhi);
 
-	float getYaw();
-	float getPitch();
-	float getRoll();
+	float getYaw();// 偏航角，绕Y轴的旋转，控制左右转
+	float getPitch();// 俯仰角，绕X轴的旋转，控制上下看
+	float getRoll();// 翻滚角，绕Z轴的旋转，控制左右倾斜
 
 	void setYaw(float inVar);
 	void setPitch(float inVar);
@@ -65,16 +65,16 @@ private:
 protected:
 	QWindow* mWindow;
 	QRhi* mRhi;
-	QVector3D mPosition = QVector3D(0, 0, 2);
-	QVector3D mRotation = QVector3D(0, 90 , 0);
+	QVector3D mPosition = QVector3D(0, 0, 2);// 摄像机位置
+	QVector3D mRotation = QVector3D(0, 90 , 0);// 欧拉角 (Pitch, Yaw, Roll)
 private:
 	QMatrix4x4 mViewMatrix;
 	QMatrix4x4 mClipMatrix;
 
-	float mFov = 90.0f;
-	float mAspectRatio = 1.0;
-	float mNearPlane = 0.2f;
-	float mFarPlane = 1000.0;
+	float mFov = 90.0f;// 视野角度
+	float mAspectRatio = 1.0;// 宽高比
+	float mNearPlane = 0.2f;// 近裁剪面
+	float mFarPlane = 1000.0;// 远裁剪面
 
 	QVector3D mCameraDirection;
 	QVector3D mCameraUp;

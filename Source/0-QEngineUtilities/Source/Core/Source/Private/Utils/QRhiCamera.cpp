@@ -155,6 +155,7 @@ bool QRhiCamera::eventFilter(QObject* watched, QEvent* event)
 				float rYaw = getYaw() * M_PI / 180 + xoffset;
 				float rPitch = getPitch() * M_PI / 180 - yoffset;
 
+				// 万向节锁处理 - 限制俯仰角范围避免问题
 				if (rPitch > 1.55f)         //将俯视角限制到[-89°,89°]，89°约等于1.55
 					rPitch = 1.55f;
 				if (rPitch < -1.55f)
@@ -238,9 +239,9 @@ void QRhiCamera::calculateProjectionMatrix()
 
 void QRhiCamera::calculateCameraDirection()
 {
-	float xzLen = cos(getPitch() * M_PI / 180);
-	mCameraDirection.setX(xzLen * cos(getYaw() * M_PI / 180));
-	mCameraDirection.setY(sin(getPitch() * M_PI / 180));
+	float xzLen = cos(getPitch() * M_PI / 180);// cos(pitch) 计算在XZ平面的投影长度
+	mCameraDirection.setX(xzLen * cos(getYaw() * M_PI / 180));// cos(yaw) 和 sin(-yaw) 计算XZ平面的方向
+	mCameraDirection.setY(sin(getPitch() * M_PI / 180));// sin(pitch) 计算Y方向分量
 	mCameraDirection.setZ(xzLen * sin(-getYaw() * M_PI / 180));
 	mCameraRight = QVector3D::crossProduct({ 0.0f,-1.0f,0.0f }, mCameraDirection);
 	mCameraUp = QVector3D::crossProduct(mCameraRight, mCameraDirection);         //摄像机上向量
