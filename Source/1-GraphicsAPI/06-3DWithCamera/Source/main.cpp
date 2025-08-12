@@ -1,6 +1,6 @@
 #include <QApplication>
 #include "Render/RHI/QRhiWindow.h"
-#include "QDateTime"
+#include <QDir>
 #include "Utils/QRhiCamera.h"
 
 struct UniformBlock {
@@ -168,7 +168,7 @@ protected:
 int main(int argc, char** argv) {
 	qputenv("QSG_INFO", "1");
 	QApplication app(argc, argv);
-
+	QDir::setCurrent(app.applicationDirPath());
 	QRhiHelper::InitParams initParams;
 	initParams.backend = QRhi::D3D11;
 	MyWindow* window = new MyWindow(initParams);
