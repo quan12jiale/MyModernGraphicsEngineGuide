@@ -93,8 +93,12 @@ protected:
 			{
 				vUV = inUV;
 				gl_Position = vec4(inPosition,0.0f,1.0f);
+			#if Y_UP_IN_NDC              //因为DX和GL，VK的NDC坐标不一致，因此这里需要做一些兼容处理
+				vUV.y = 1 - vUV.y;
+			#endif
 			}
-		)");
+		)", QShaderDefinitions()   //该参数只是简单的在代码开头添加 #define Y_UP_IN_NDC 1        
+			.addDefinition("Y_UP_IN_NDC", mRhi->isYUpInNDC()));
 		Q_ASSERT(vs.isValid());
 
 		QShader fs = QRhiHelper::newShaderFromCode(QShader::FragmentStage, R"(#version 440
