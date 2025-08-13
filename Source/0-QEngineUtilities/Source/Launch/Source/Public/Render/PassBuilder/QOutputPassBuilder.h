@@ -5,7 +5,7 @@
 #include "QEngineLaunchAPI.h"
 #include "Render/IRenderer.h"
 #include "Render/Painter/DebugUiPainter.h"
-#include "Render/RenderGraph/PassBuilder/QMousePickingPassBuilder.h"
+//#include "Render/RenderGraph/PassBuilder/QMousePickingPassBuilder.h"
 
 class QENGINELAUNCH_API QOutputPassBuilder : public IRenderPassBuilder {
 	QRP_INPUT_BEGIN(QOutputPassBuilder)

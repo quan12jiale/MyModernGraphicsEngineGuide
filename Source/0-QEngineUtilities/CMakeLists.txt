@@ -145,7 +145,7 @@ endmacro()
 
 add_subdirectory(3rdParty)
 add_subdirectory(Source/Core)
-#add_subdirectory(Source/Editor)
+add_subdirectory(Source/Editor)
 
 file(GLOB PLUGIN_DIR_LIST RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} Plugins/*)
 foreach(PLUGIN_DIR ${PLUGIN_DIR_LIST})
@@ -154,7 +154,7 @@ foreach(PLUGIN_DIR ${PLUGIN_DIR_LIST})
     endif()
 endforeach()
 
-#add_subdirectory(Source/Launch)
+add_subdirectory(Source/Launch)
 
 if(PROJECT_IS_TOP_LEVEL)
     add_subdirectory(Examples)
