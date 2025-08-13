@@ -12,7 +12,7 @@ private:
 	QSharedPointer<QMeshPassBuilder> mMeshPass{ new QMeshPassBuilder };
 public:
 	MyRenderer()
-		: IRenderer({ QRhi::Vulkan })
+		: IRenderer({ QRhi::D3D11 })
 	{
 		mSpectrumComp.setAudio("Resources/Audio/MySunset.mp3");
 		mSpectrumComp.setBarCount(1000);

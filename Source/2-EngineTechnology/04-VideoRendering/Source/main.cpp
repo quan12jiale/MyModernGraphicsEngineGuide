@@ -7,7 +7,7 @@ class MyRenderer : public IRenderer {
 private:
 public:
 	MyRenderer()
-		: IRenderer({QRhi::Vulkan}) {
+		: IRenderer({QRhi::D3D11 }) {
 	}
 public:
 protected:
@@ -18,7 +18,7 @@ protected:
 int main(int argc, char** argv) {
 	QApplication app(argc, argv);
 	QRhiHelper::InitParams initParams;
-	initParams.backend = QRhi::Implementation::Vulkan;
+	initParams.backend = QRhi::Implementation::D3D11;
 
 	QRenderWidget widget(new MyRenderer());
 	widget.showMaximized();

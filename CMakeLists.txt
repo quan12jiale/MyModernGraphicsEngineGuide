@@ -68,7 +68,7 @@ function(add_example EXAMPLE_PATH)
     add_executable(${EXAMPLE_NAME} WIN32
         ${PROJECT_SOURCES}
     )
-    target_link_libraries(${EXAMPLE_NAME} PRIVATE QEngineCore) # QEngineLaunch
+    target_link_libraries(${EXAMPLE_NAME} PRIVATE QEngineLaunch) # QEngineLaunch QEngineCore
     #add_dependencies(${EXAMPLE_NAME} QEngineCopyDLL)
     
     add_custom_command( #设置生成事件>>生成后事件 参考cmake\linux\helpers.cmake。拷贝Resources文件夹;调用windeployqt部署qt的dll
@@ -100,15 +100,15 @@ endfunction()
 
 add_subdirectory(Source/0-QEngineUtilities)
 file(GLOB PLUGIN_DIR_LIST RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} Source/Plugins/*)
-#foreach(PLUGIN_DIR ${PLUGIN_DIR_LIST})
-#    if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${PLUGIN_DIR})
-#        add_subdirectory(${PLUGIN_DIR})
-#    endif()
-#endforeach()
+foreach(PLUGIN_DIR ${PLUGIN_DIR_LIST})
+    if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${PLUGIN_DIR})
+        add_subdirectory(${PLUGIN_DIR})
+    endif()
+endforeach()
 #qengine_make_copy_target(QEngineCopyDLL)
 
 add_example_dir(${CMAKE_CURRENT_SOURCE_DIR}/Source/1-GraphicsAPI 1-GraphicsAPI)
-#add_example_dir(${CMAKE_CURRENT_SOURCE_DIR}/Source/2-EngineTechnology 2-EngineTechnology)
+add_example_dir(${CMAKE_CURRENT_SOURCE_DIR}/Source/2-EngineTechnology 2-EngineTechnology)
 #add_example_dir(${CMAKE_CURRENT_SOURCE_DIR}/Source/3-GraphicsTechnology 3-GraphicsTechnology)
 
 # 部分示例的特殊操作

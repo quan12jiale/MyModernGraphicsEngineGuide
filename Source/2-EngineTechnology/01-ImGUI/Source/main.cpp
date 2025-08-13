@@ -7,7 +7,7 @@
 class MyRenderer : public IRenderer {
 public:
 	MyRenderer()
-		: IRenderer({ QRhi::Vulkan })
+		: IRenderer({ QRhi::D3D11 })
 	{
 	}
 protected:

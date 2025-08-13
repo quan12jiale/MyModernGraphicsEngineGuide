@@ -12,7 +12,7 @@ static float VertexData[] = {
 };
 
 class QTriangleRenderComponent: public IRenderComponent {
-	Q_OBJECT
+	//Q_OBJECT
 	Q_PROPERTY(QColor Color READ getColor WRITE setColor)
 public:
 	QColor getColor() const { return mColor; }
@@ -146,7 +146,7 @@ private:
 	QTriangleRenderComponent mComp;
 public:
 	MyRenderer()
-		: IRenderer({QRhi::Vulkan})
+		: IRenderer({QRhi::D3D11 })
 	{
 		addComponent(&mComp);
 	}
@@ -170,4 +170,4 @@ int main(int argc, char **argv){
     return app.exec();
 }
 
-#include "main.moc"
+//#include "main.moc"
