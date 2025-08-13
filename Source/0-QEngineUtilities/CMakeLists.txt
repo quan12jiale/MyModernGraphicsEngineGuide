@@ -143,7 +143,7 @@ macro(qengine_make_copy_target TARGET_NAME)
     )
 endmacro()
 
-#add_subdirectory(3rdParty)
+add_subdirectory(3rdParty)
 add_subdirectory(Source/Core)
 #add_subdirectory(Source/Editor)
 
